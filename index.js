@@ -34,7 +34,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 app.use(cors());
 app.use(express.json());
 app.use('/api', router);
-// app.use(errorHandler); // Если хотите использовать обработчик ошибок, раскомментируйте эту строку
+app.use(errorHandler);
 
 const start = async () => {
   try {

@@ -59,7 +59,7 @@ const Favorite = sequelize.define('favorite', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'users',
+            model: User,
             key: 'id'
         }
     },
@@ -67,13 +67,13 @@ const Favorite = sequelize.define('favorite', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'flights',
+            model: Flight,
             key: 'id'
         }
     }
 });
 
-// Определяем связь многие ко многим
+// Связь многие ко многим
 User.belongsToMany(Flight, { through: Favorite, foreignKey: 'userId' });
 Flight.belongsToMany(User, { through: Favorite, foreignKey: 'flightId' });
 
@@ -93,14 +93,16 @@ const FlightNumber = sequelize.define('flight_number', {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-            model: 'flights',
+            model: Flight,
             key: 'id'
         }
     }
 });
 
 FlightNumber.belongsTo(Flight); 
-Flight.hasMany(FlightNumber);
+Flight.hasOne(FlightNumber);
+
+
 
 module.exports = {
     User,

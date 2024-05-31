@@ -2,9 +2,9 @@ const { User, Flight, Favorite } = require('../models/models');
 
 /**
  * @swagger
- * /api/user/{userId}/favorites:
+ * /api/userflight/user/{userId}/favorite:
  *   get:
- *     summary: Get all favorite flights of a user
+ *     summary: Получить все избранные рейсы пользователя
  *     tags: [Favorites]
  *     parameters:
  *       - in: path
@@ -12,10 +12,10 @@ const { User, Flight, Favorite } = require('../models/models');
  *         schema:
  *           type: integer
  *         required: true
- *         description: ID of the user
+ *         description: ID пользователя
  *     responses:
  *       200:
- *         description: List of favorite flights
+ *         description: Список избранных рейсов
  *         content:
  *           application/json:
  *             schema:
@@ -51,6 +51,7 @@ const { User, Flight, Favorite } = require('../models/models');
 exports.getUserFavorites = async (req, res) => {
     const { userId } = req.params;
     try {
+        console.log(`Получение избранных рейсов для пользователя: ${userId}`);
         const userFavorites = await User.findByPk(userId, {
             include: {
                 model: Flight,
@@ -61,19 +62,21 @@ exports.getUserFavorites = async (req, res) => {
             }
         });
         if (!userFavorites) {
-            return res.status(404).json({ error: 'User not found' });
+            console.log(`Пользователь с ID ${userId} не найден`);
+            return res.status(404).json({ error: 'Пользователь не найден' });
         }
         res.json(userFavorites);
     } catch (error) {
+        console.error(`Ошибка при получении избранных рейсов пользователя: ${error.message}`);
         res.status(400).json({ error: error.message });
     }
 };
 
 /**
  * @swagger
- * /api/flight/{flightId}/favorites:
+ * /api/userflight/flight/{flightId}/favorite:
  *   get:
- *     summary: Get all users who have a specific flight as favorite
+ *     summary: Получить всех пользователей, у которых определенный рейс в избранных
  *     tags: [Favorites]
  *     parameters:
  *       - in: path
@@ -81,10 +84,10 @@ exports.getUserFavorites = async (req, res) => {
  *         schema:
  *           type: integer
  *         required: true
- *         description: ID of the flight
+ *         description: ID рейса
  *     responses:
  *       200:
- *         description: List of users with the flight as favorite
+ *         description: Список пользователей с этим рейсом в избранных
  *         content:
  *           application/json:
  *             schema:
@@ -113,13 +116,14 @@ exports.getUserFavorites = async (req, res) => {
  *                           country:
  *                             type: string
  *       404:
- *         description: Flight not found
+ *         description: Рейс не найден
  *       400:
- *         description: Bad request
+ *         description: Плохой запрос
  */
 exports.getFlightFavorites = async (req, res) => {
     const { flightId } = req.params;
     try {
+        console.log(`Получение пользователей для рейса: ${flightId}`);
         const flightFavorites = await Flight.findByPk(flightId, {
             include: {
                 model: User,
@@ -130,10 +134,12 @@ exports.getFlightFavorites = async (req, res) => {
             }
         });
         if (!flightFavorites) {
-            return res.status(404).json({ error: 'Flight not found' });
+            console.log(`Рейс с ID ${flightId} не найден`);
+            return res.status(404).json({ error: 'Рейс не найден' });
         }
         res.json(flightFavorites);
     } catch (error) {
+        console.error(`Ошибка при получении пользователей рейса: ${error.message}`);
         res.status(400).json({ error: error.message });
     }
 };

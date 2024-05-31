@@ -1,4 +1,3 @@
-// controllers/flightNumberController.js
 const { FlightNumber } = require('../models/models');
 
 /**
@@ -23,12 +22,11 @@ const FlightNumberController = {
    *           description: Автогенерированный ID
    *         aviacompany:
    *           type: string
-   *           description: flight number
+   *           description: Номер рейса
    *         flightId:
    *           type: integer
    *           description: Идентификатор соответствующего рейса
    *       example:
-   *         id: 1
    *         aviacompany: "DL123"
    *         flightId: 1
    */
@@ -70,7 +68,15 @@ const FlightNumberController = {
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/FlightNumber'
+   *             type: object
+   *             properties:
+   *               aviacompany:
+   *                 type: string
+   *               flightId:
+   *                 type: integer
+   *             example:
+   *               aviacompany: "DL123"
+   *               flightId: 1
    *     responses:
    *       201:
    *         description: Успешно созданно
@@ -78,6 +84,12 @@ const FlightNumberController = {
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/FlightNumber'
+   *       400:
+   *         description: Поля aviacompany и flightId обязательны для заполнения
+   *       409:
+   *         description: Номер рейса с таким flightId уже существует
+   *       500:
+   *         description: Внутренняя ошибка сервера
    */
   createFlightNumber: async (req, res) => {
     const { aviacompany, flightId } = req.body;
@@ -88,6 +100,12 @@ const FlightNumberController = {
     }
 
     try {
+      // Check if a FlightNumber with the same flightId already exists
+      const existingFlightNumber = await FlightNumber.findOne({ where: { flightId } });
+      if (existingFlightNumber) {
+        return res.status(409).json({ error: 'Номер рейса с таким flightId уже существует' });
+      }
+
       const newFlightNumber = await FlightNumber.create({ aviacompany, flightId });
       res.status(201).json(newFlightNumber);
     } catch (error) {
@@ -128,7 +146,6 @@ const FlightNumberController = {
   updateFlightNumber: async (req, res) => {
     const { aviacompany, flightId } = req.body;
 
-    
     if (!aviacompany || !flightId) {
       return res.status(400).json({ error: 'Поля aviacompany и flightId обязательны для заполнения' });
     }
